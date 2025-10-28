@@ -1,40 +1,79 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Github, Linkedin, Mail, Instagram, Send, CheckCircle2 } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Instagram,
+  Send,
+  CheckCircle2,
+} from "lucide-react";
 
 const socialLinks = [
   { icon: Github, href: "https://github.com", label: "GitHub" },
   { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
   { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
   { icon: Mail, href: "mailto:alessandro@example.com", label: "Email" },
-]
+];
 
 export function ContactSection() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  // campos do form
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [text, setText] = useState("");
+
+  // estados de envio
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg("");
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message: text,
+        }),
+      });
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Erro ao enviar mensagem");
+      }
 
-    setTimeout(() => setIsSubmitted(false), 3000)
-  }
+      // sucesso
+      setIsSubmitted(true);
+      setName("");
+      setEmail("");
+      setText("");
+
+      // tira o "Enviado!" depois de alguns segundos
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Erro inesperado");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
-      {/* Animated background */}
+      {/* background da seção */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-transparent via-background to-background" />
 
@@ -43,12 +82,13 @@ export function ContactSection() {
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold">Vamos Conectar?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Adoro trocar ideias, construir parcerias e criar projetos colaborativos. Entre em contato!
+              Adoro trocar ideias, construir parcerias e criar projetos
+              colaborativos. Entre em contato!
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact form */}
+            {/* FORMULÁRIO */}
             <div className="space-y-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -60,6 +100,9 @@ export function ContactSection() {
                     placeholder="Seu nome"
                     required
                     className="bg-card border-border focus:border-primary transition-colors"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -73,6 +116,9 @@ export function ContactSection() {
                     placeholder="seu@email.com"
                     required
                     className="bg-card border-border focus:border-primary transition-colors"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -86,8 +132,15 @@ export function ContactSection() {
                     rows={5}
                     required
                     className="bg-card border-border focus:border-primary transition-colors resize-none"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
+
+                {errorMsg && (
+                  <p className="text-sm text-red-500">{errorMsg}</p>
+                )}
 
                 <Button
                   type="submit"
@@ -114,18 +167,19 @@ export function ContactSection() {
               </form>
             </div>
 
-            {/* Social links */}
+            {/* SOCIAL / CONTATO ALTERNATIVO */}
             <div className="space-y-6">
               <div>
                 <h3 className="text-2xl font-bold mb-4">Redes Sociais</h3>
                 <p className="text-muted-foreground leading-relaxed mb-6">
-                  Conecte-se comigo nas redes sociais e vamos construir algo incrível juntos!
+                  Conecte-se comigo nas redes sociais e vamos construir algo
+                  incrível juntos!
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 {socialLinks.map((social, index) => {
-                  const Icon = social.icon
+                  const Icon = social.icon;
                   return (
                     <a
                       key={index}
@@ -141,14 +195,14 @@ export function ContactSection() {
                         <span className="font-medium">{social.label}</span>
                       </div>
                     </a>
-                  )
+                  );
                 })}
               </div>
 
               <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
                 <p className="text-center text-sm text-muted-foreground leading-relaxed">
-                  Respondo todas as mensagens em até 24 horas. Vamos conversar sobre tecnologia, projetos e
-                  oportunidades!
+                  Respondo todas as mensagens em até 24 horas. Vamos conversar
+                  sobre tecnologia, projetos e oportunidades!
                 </p>
               </div>
             </div>
@@ -156,5 +210,5 @@ export function ContactSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
