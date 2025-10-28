@@ -1,0 +1,41 @@
+[
+    {
+        "id": "arena-connect",
+        "title": "ArenaConnect",
+        "description": "Sistema completo de gestão para arenas esportivas com agendamento, pagamentos e controle de acesso.",
+        "image": "/sports-arena-management-dashboard.jpg",
+        "tags": [
+            "Next.js",
+            "Django",
+            "PostgreSQL"
+        ],
+        "color": "from-blue-500 to-cyan-500",
+        "url": "https://exemplo.com/arena"
+    },
+    {
+        "id": "sport-connect",
+        "title": "SportConnect",
+        "description": "Plataforma social esportiva que conecta atletas, organiza campeonatos e cria comunidades.",
+        "image": "/sports-social-network-platform.jpg",
+        "tags": [
+            "React",
+            "Node.js",
+            "MongoDB"
+        ],
+        "color": "from-green-500 to-emerald-500",
+        "url": "https://exemplo.com/sport"
+    },
+    {
+        "id": "erp-cometa",
+        "title": "ERP Cometa",
+        "description": "ERP modular para supermercados com gestão de estoque, vendas, financeiro e relatórios avançados.",
+        "image": "/modern-erp-dashboard-interface.jpg",
+        "tags": [
+            "Python",
+            "Django",
+            "Redis"
+        ],
+        "color": "from-purple-500 to-pink-500",
+        "url": "https://exemplo.com/erp"
+    }
+]

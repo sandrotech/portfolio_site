@@ -1,167 +1,188 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, ExternalLink, Plus } from "lucide-react"
+import { useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, ExternalLink, Plus } from "lucide-react";
 
-const projects = [
-  {
-    title: "ArenaConnect",
-    description: "Sistema completo de gestão para arenas esportivas com agendamento, pagamentos e controle de acesso.",
-    image: "/sports-arena-management-dashboard.jpg",
-    tags: ["Next.js", "Django", "PostgreSQL"],
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "SportConnect",
-    description: "Plataforma social esportiva que conecta atletas, organiza campeonatos e cria comunidades.",
-    image: "/sports-social-network-platform.jpg",
-    tags: ["React", "Node.js", "MongoDB"],
-    color: "from-green-500 to-emerald-500",
-  },
-  {
-    title: "ERP Cometa",
-    description: "ERP modular para supermercados com gestão de estoque, vendas, financeiro e relatórios avançados.",
-    image: "/modern-erp-dashboard-interface.jpg",
-    tags: ["Python", "Django", "Redis"],
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    title: "DesignFlow",
-    description: "Sistema de gestão criativa para agências com controle de projetos, clientes e entregas.",
-    image: "/creative-project-management-tool.jpg",
-    tags: ["Next.js", "TypeScript", "Supabase"],
-    color: "from-orange-500 to-red-500",
-  },
-  {
-    title: "Intranet Cometa",
-    description: "Rede corporativa interna com comunicação, documentos, RH e gestão de equipes.",
-    image: "/corporate-intranet-dashboard.jpg",
-    tags: ["React", "Django", "Docker"],
-    color: "from-indigo-500 to-blue-500",
-  },
-  {
-    title: "Wedding Site",
-    description: "Site de casamento interativo com confirmação de presença, lista de presentes e galeria de fotos.",
-    image: "/elegant-wedding-website.jpg",
-    tags: ["Next.js", "Tailwind", "Vercel"],
-    color: "from-pink-500 to-rose-500",
-  },
-]
+// importa o JSON estático
+import projectsData from "@/data/projects.json";
 
-export function ProjectsSection() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+type Project = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  color: string; // ex: "from-blue-500 to-cyan-500"
+  url?: string;
+};
+
+export default function ProjectsSection() {
+  // agora usamos direto o json, sem filtro de `active`
+  const projects = projectsData as Project[];
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 400
-      scrollContainerRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      })
-    }
-  }
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const amount = 400;
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/5 to-background" />
+      {/* fundo leve em degradê pra separar a seção do resto */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(24,36,96,.35)_0%,rgba(0,0,0,0)_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-primary/5/[0.03] to-background" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold">Projetos</h2>
-            <p className="text-xl text-muted-foreground">Soluções que transformam ideias em realidade</p>
+      <div className="relative z-10 container mx-auto px-4 space-y-12">
+        {/* Cabeçalho da seção */}
+        <div className="text-center space-y-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+            Projetos
+          </h2>
+
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Alguns trabalhos e plataformas que desenvolvo com foco em produto
+            digital real
+          </p>
+        </div>
+
+        <div className="relative">
+          {/* Botões laterais de scroll (desktop) */}
+          <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 justify-between pointer-events-none z-10 px-4">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => scroll("left")}
+              className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50 text-foreground"
+            >
+              <ArrowRight className="h-4 w-4 rotate-180" />
+            </Button>
+
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => scroll("right")}
+              className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50 text-foreground"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
 
-          <div className="relative">
-            {/* Scroll buttons */}
-            <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 justify-between pointer-events-none z-10 px-4">
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => scroll("left")}
-                className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50"
+          {/* Lista horizontal com os cards de projeto */}
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center group"
               >
-                <ArrowRight className="h-4 w-4 rotate-180" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => scroll("right")}
-                className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
+                <div className="relative h-full rounded-2xl bg-card border border-border/60 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20">
+                  {/* Imagem de capa do projeto */}
+                  <div className="relative h-64 overflow-hidden">
+                    {/* overlay gradiente custom de cada projeto */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br opacity-20 ${project.color}`}
+                    />
 
-            {/* Projects scroll container */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {projects.map((project, index) => (
-                <div key={index} className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center group">
-                  <div className="relative h-full rounded-2xl bg-card border border-border overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20">
-                    {/* Project image */}
-                    <div className="relative h-64 overflow-hidden">
-                      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", project.color)} />
-                      <img
-                        src={project.image || "/placeholder.svg"}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-
-                    {/* Project content */}
-                    <div className="p-6 space-y-4">
-                      <h3 className="text-2xl font-bold">{project.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{project.description}</p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2">
-                        {project.tags.map((tag, tagIndex) => (
-                          <span
-                            key={tagIndex}
-                            className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Action button */}
-                      <Button className="w-full group/btn bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-                        Ver Detalhes
-                        <ExternalLink className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                      </Button>
-                    </div>
+                    <img
+                      src={
+                        project.image && project.image.trim() !== ""
+                          ? project.image
+                          : "/placeholder.svg"
+                      }
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                   </div>
-                </div>
-              ))}
 
-              {/* Add project card */}
-              <div className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center">
-                <div className="h-full rounded-2xl border-2 border-dashed border-primary/30 hover:border-primary/60 transition-colors flex items-center justify-center cursor-pointer group animate-pulse-glow">
-                  <div className="text-center space-y-4 p-8">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Plus className="h-8 w-8 text-primary" />
+                  {/* Conteúdo do card */}
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      {project.title}
+                    </h3>
+
+                    <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                      {project.description}
+                    </p>
+
+                    {/* Tags / stack */}
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags?.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold">Novo Projeto</h3>
-                      <p className="text-muted-foreground">Em breve...</p>
-                    </div>
+
+                    {/* Botão de ação (link do projeto se tiver url) */}
+                    {project.url && project.url.trim() !== "" ? (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button className="w-full group/btn bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-foreground">
+                          Ver Detalhes
+                          <ExternalLink className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                        </Button>
+                      </a>
+                    ) : (
+                      <Button
+                        className="w-full group/btn bg-gradient-to-r from-primary to-secondary opacity-60 cursor-default"
+                        disabled
+                      >
+                        Ver Detalhes
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
+
+            {/* Card final chamando contato / orçamento */}
+            <a
+              href="#contact"
+              className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center"
+            >
+              <div className="h-full rounded-2xl border border-dashed border-primary/40 hover:border-primary/70 transition-colors flex items-center bg-card/20 p-6 md:p-8 cursor-pointer group">
+                <div className="flex flex-col md:flex-row md:items-start gap-6 text-left">
+                  {/* bolinha com + */}
+                  <div className="flex-shrink-0">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors border border-primary/40">
+                      <Plus className="h-8 w-8 text-primary" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-bold text-foreground">
+                      Quer algo assim na sua empresa?
+                    </h3>
+                    <p className="text-muted-foreground text-sm md:text-base">
+                      Fala comigo pra criar ou evoluir seu produto.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
         </div>
       </div>
     </section>
-  )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
+  );
 }
