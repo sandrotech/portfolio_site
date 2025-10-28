@@ -45,17 +45,19 @@ export function HeroSection() {
           <div className="flex justify-center lg:justify-end order-2 lg:order-1">
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-primary to-secondary rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+
               <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/50 shadow-2xl animate-float">
                 <Image
                   src="/images/alessandro-profile.png"
                   alt="Alessandro Barbosa"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   priority
                 />
               </div>
             </div>
           </div>
+
 
           {/* Right side - Content */}
           <div className="space-y-6 order-1 lg:order-2 text-center lg:text-left">
