@@ -1,41 +1,41 @@
 [
     {
-        "id": "arena-connect",
-        "title": "ArenaConnect",
-        "description": "Sistema completo de gestão para arenas esportivas com agendamento, pagamentos e controle de acesso.",
-        "image": "/sports-arena-management-dashboard.jpg",
+        "id": "site-insitucional01",
+        "title": "Site Institucional Engenharia",
+        "description": "Site institucional moderno e responsivo desenvolvido com Vite + React, apresentando a empresa e seus serviços de consultoria em Engenharia de Produção.",
+        "image": "https://laboro.edu.br/wp-content/uploads/Quais-sao-os-tipos-de-engenharia.jpg",
         "tags": [
-            "Next.js",
-            "Django",
-            "PostgreSQL"
-        ],
-        "color": "from-blue-500 to-cyan-500",
-        "url": "https://exemplo.com/arena"
-    },
-    {
-        "id": "sport-connect",
-        "title": "SportConnect",
-        "description": "Plataforma social esportiva que conecta atletas, organiza campeonatos e cria comunidades.",
-        "image": "/sports-social-network-platform.jpg",
-        "tags": [
+            "Vite",
             "React",
-            "Node.js",
-            "MongoDB"
-        ],
-        "color": "from-green-500 to-emerald-500",
-        "url": "https://exemplo.com/sport"
-    },
-    {
-        "id": "erp-cometa",
-        "title": "ERP Cometa",
-        "description": "ERP modular para supermercados com gestão de estoque, vendas, financeiro e relatórios avançados.",
-        "image": "/modern-erp-dashboard-interface.jpg",
-        "tags": [
-            "Python",
-            "Django",
-            "Redis"
+            "Tailwind"
         ],
         "color": "from-purple-500 to-pink-500",
-        "url": "https://exemplo.com/erp"
+        "url": "https://app01siteinstitucional.alessandrosantos.dev/"
+    },
+    {
+        "id": "site-insitucional02",
+        "title": "Site Institucional Comunicação Visual",
+        "description": "Site institucional para empresa de comunicação visual com foco em apresentar serviços como fachadas em ACM, letreiros luminosos.",
+        "image": "https://www.infoescola.com/wp-content/uploads/2016/05/comunica%C3%A7%C3%A3o-visual_184349189.jpg",
+        "tags": [
+            "Vite",
+            "React",
+            "Tailwind"
+        ],
+        "color": "from-purple-500 to-pink-500",
+        "url": "https://app02siteinstitucional.alessandrosantos.dev/"
+    },
+    {
+        "id": "sistema-financeiro03",
+        "title": "Sistema de Controle Financeiro",
+        "description": "Sistema financeiro para controle de gastos, controle de pagamento por cartão e controle de projetos pessoais",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGkYI6jjdZAbVfg3nKUuC4qew89qihOPRTiQ&s",
+        "tags": [
+            "Vite",
+            "React",
+            "Tailwind"
+        ],
+        "color": "from-purple-500 to-pink-500",
+        "url": "https://app03sistemafinanceiro.alessandrosantos.dev/"
     }
 ]
