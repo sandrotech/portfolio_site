@@ -37,5 +37,18 @@
         ],
         "color": "from-purple-500 to-pink-500",
         "url": "https://app03sistemafinanceiro.alessandrosantos.dev/"
+    },
+        {
+        "id": "blogsaude04",
+        "title": "Blog de Saúde",
+        "description": "Blog de Saúde com informes e venda de produtos",
+        "image": "https://blog.circulosaude.com.br/wp-content/uploads/2025/10/circulo-destaque-redu.jpg",
+        "tags": [
+            "Vite",
+            "React",
+            "Tailwind"
+        ],
+        "color": "from-purple-500 to-pink-500",
+        "url": "https://app04blogsaude.alessandrosantos.dev/"
     }
 ]
