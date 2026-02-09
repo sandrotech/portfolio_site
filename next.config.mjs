@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
+  generateEtags: false, // Prevent inode leaking via ETags
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -41,38 +43,7 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
-          // Content Security Policy (CSP)
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              // Default: Only same origin
-              "default-src 'self'",
-              // Scripts: Self + Next.js chunks + Vercel Analytics + unsafe-eval for dev
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com",
-              // Styles: Self + Inline (for Radix UI, Framer Motion) + Google Fonts
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              // Images: Self + Data URIs + Vercel + External CDNs
-              "img-src 'self' data: https: blob:",
-              // Fonts: Self + Google Fonts + Data URIs
-              "font-src 'self' data: https://fonts.gstatic.com",
-              // Connect (AJAX/Fetch): Self + Vercel Analytics
-              "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-              // Media: Self only
-              "media-src 'self'",
-              // Objects/Embeds: None (block Flash, Java applets)
-              "object-src 'none'",
-              // Base URI: Self only
-              "base-uri 'self'",
-              // Form Actions: Self only
-              "form-action 'self'",
-              // Frame Ancestors: None (additional clickjacking protection)
-              "frame-ancestors 'none'",
-              // Upgrade HTTP to HTTPS
-              "upgrade-insecure-requests",
-              // Block mixed content
-              "block-all-mixed-content",
-            ].join('; '),
-          },
+          // NOTE: CSP is now handled by middleware.ts with nonces
         ],
       },
     ]
