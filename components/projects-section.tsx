@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Plus } from "lucide-react";
-import { BudgetModal } from "@/components/budget-modal";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Send,
+  CheckCircle2,
+  ArrowRight,
+  Sparkles,
+  ShoppingCart,
+  HeartPulse,
+  BadgeDollarSign,
+} from "lucide-react";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 type Project = {
   id: string;
   title: string;
@@ -12,247 +21,535 @@ type Project = {
   image: string;
   tags: string[];
   color: string;
-  url?: string | null;
-  isCta?: boolean;
+  url?: string;
 };
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+const WHATSAPP = "5585988102690";
+const CARD_WIDTH = 360;
+const CARD_GAP = 24;
+const SPEED_PX_PER_SEC = 48;
+
+// Detect project sector for modal accent color
+function getSectorFromProject(project: Project) {
+  const lowerTags = project.tags.map((t) => t.toLowerCase());
+  const lowerTitle = project.title.toLowerCase();
+  if (
+    lowerTags.some((t) => ["lgpd", "ans", "telemedicina", "saúde", "pep", "hospitalar"].includes(t)) ||
+    lowerTitle.includes("saúde") ||
+    lowerTitle.includes("med") ||
+    lowerTitle.includes("clínica")
+  ) {
+    return { accent: "#0F6B75", accentMuted: "rgba(15,107,117,0.14)", accentBorder: "rgba(15,107,117,0.35)", icon: HeartPulse, label: "Saúde & Hospitalar" };
+  }
+  return { accent: "#E57C1F", accentMuted: "rgba(229,124,31,0.14)", accentBorder: "rgba(229,124,31,0.35)", icon: ShoppingCart, label: "Varejo & Supermercados" };
+}
+
+// ─── Quote Modal ──────────────────────────────────────────────────────────────
+function QuoteModal({
+  project,
+  onClose,
+}: {
+  project: Project | null;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const isOpen = project !== null;
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      const t = setTimeout(() => {
+        setName(""); setEmail(""); setCompany(""); setDescription("");
+        setIsSubmitted(false); setErrorMsg("");
+      }, 350);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
+
+  if (!project) return null;
+
+  const cfg = getSectorFromProject(project);
+  const SectorIcon = cfg.icon;
+  const placeholder = `Conte mais sobre o que você precisa com base no projeto "${project.title}"...`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg("");
+
+    const waText = `Olá, Alessandro! Sou ${name}${company ? ` da empresa "${company}"` : ""}.\n\nTenho interesse em um orçamento inspirado no projeto *${project.title}*.\n\n${description}\n\nE-mail: ${email}`;
+
+    try {
+      await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          message: `[Orçamento via Carrossel - ${project.title}]\nEmpresa: ${company || "não informada"}\nDescrição: ${description}`,
+        }),
+      });
+
+      setIsSubmitted(true);
+
+      setTimeout(() => {
+        window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waText)}`, "_blank");
+        onClose();
+      }, 1800);
+    } catch {
+      setErrorMsg("Erro ao enviar. Tente novamente ou nos contate diretamente.");
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md"
+            onClick={onClose}
+          />
+
+          {/* Modal */}
+          <motion.div
+            key="modal"
+            initial={{ opacity: 0, y: 64, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 32, scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div
+              className="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl pointer-events-auto"
+              style={{ background: "#0e0e0e", border: `1px solid ${cfg.accentBorder}` }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Top accent bar */}
+              <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${cfg.accent}, transparent)` }} />
+
+              {/* Close */}
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Fechar modal"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <AnimatePresence mode="wait">
+                {isSubmitted ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center justify-center gap-5 p-14 text-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [0, 1.25, 1] }}
+                      transition={{ duration: 0.45, delay: 0.05 }}
+                      className="w-16 h-16 rounded-full flex items-center justify-center"
+                      style={{ background: cfg.accentMuted, border: `1px solid ${cfg.accentBorder}` }}
+                    >
+                      <CheckCircle2 className="h-8 w-8" style={{ color: cfg.accent }} />
+                    </motion.div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-bold text-white">Mensagem enviada!</h3>
+                      <p className="text-white/50 text-sm">Abrindo WhatsApp para continuarmos...</p>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: cfg.accent }}
+                          animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 0.85, repeat: Infinity, delay: i * 0.22 }}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key="form" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {/* Header */}
+                    <div className="px-6 pt-8 pb-5" style={{ borderBottom: `1px solid ${cfg.accentBorder}` }}>
+                      {/* Project preview pill */}
+                      <div
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-4 text-xs font-semibold"
+                        style={{ background: cfg.accentMuted, color: cfg.accent, border: `1px solid ${cfg.accentBorder}` }}
+                      >
+                        <SectorIcon className="h-3.5 w-3.5" />
+                        {project.title}
+                      </div>
+
+                      <h2 className="text-xl font-bold text-white leading-tight">
+                        Solicitar Orçamento Personalizado
+                      </h2>
+                      <p className="text-white/45 text-sm mt-1.5 leading-relaxed">
+                        Preencha abaixo e te chamo no WhatsApp em até <strong className="text-white/70">1 hora</strong>!
+                      </p>
+                    </div>
+
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: "Seu nome *", value: name, onChange: setName, placeholder: "João Silva", type: "text", required: true },
+                          { label: "Empresa", value: company, onChange: setCompany, placeholder: "Nome da empresa", type: "text", required: false },
+                        ].map((field) => (
+                          <div key={field.label} className="space-y-1">
+                            <label className="text-xs font-medium text-white/55">{field.label}</label>
+                            <input
+                              type={field.type}
+                              required={field.required}
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              disabled={isSubmitting}
+                              placeholder={field.placeholder}
+                              className="w-full h-10 px-3 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:outline-none placeholder:text-white/20 transition-colors"
+                              onFocus={(e) => (e.target.style.borderColor = cfg.accentBorder)}
+                              onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-white/55">E-mail *</label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={isSubmitting}
+                          placeholder="seu@email.com"
+                          className="w-full h-10 px-3 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:outline-none placeholder:text-white/20 transition-colors"
+                          onFocus={(e) => (e.target.style.borderColor = cfg.accentBorder)}
+                          onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-white/55">O que você precisa? *</label>
+                        <textarea
+                          required
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          disabled={isSubmitting}
+                          placeholder={placeholder}
+                          rows={4}
+                          className="w-full px-3 py-2.5 rounded-lg text-sm text-white bg-white/5 border border-white/10 focus:outline-none placeholder:text-white/20 transition-colors resize-none"
+                          onFocus={(e) => (e.target.style.borderColor = cfg.accentBorder)}
+                          onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                        />
+                      </div>
+
+                      {errorMsg && <p className="text-red-400 text-xs">{errorMsg}</p>}
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 disabled:opacity-60 hover:brightness-110"
+                        style={{ background: cfg.accent, color: "#fff" }}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4" />
+                            Quero um orçamento para isso
+                          </>
+                        )}
+                      </button>
+
+                      <p className="text-center text-xs text-white/25">
+                        Após enviar, você será redirecionado ao WhatsApp.
+                      </p>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Project Card ─────────────────────────────────────────────────────────────
+function ProjectCard({
+  project,
+  onClick,
+}: {
+  project: Project;
+  onClick: (p: Project) => void;
+}) {
+  const cfg = getSectorFromProject(project);
+
+  return (
+    <motion.button
+      onClick={() => onClick(project)}
+      whileHover={{ y: -6, scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 22 }}
+      className="flex-shrink-0 text-left cursor-pointer focus:outline-none group"
+      style={{ width: CARD_WIDTH }}
+      aria-label={`Solicitar orçamento para ${project.title}`}
+    >
+      <div
+        className="relative rounded-2xl overflow-hidden h-full"
+        style={{
+          background: "#111",
+          border: `1px solid rgba(255,255,255,0.08)`,
+          boxShadow: "0 4px 24px rgba(0,0,0,0.45)",
+        }}
+      >
+        {/* Image */}
+        <div className="relative h-52 overflow-hidden">
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-25`}
+          />
+          <img
+            src={project.image && project.image.trim() !== "" ? project.image : "/placeholder.svg"}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            draggable={false}
+          />
+
+          {/* Hover CTA overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)" }}
+          >
+            <span
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm text-white"
+              style={{ background: cfg.accent }}
+            >
+              <BadgeDollarSign className="h-4 w-4" />
+              Pedir Orçamento
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Content */}
+        <div className="p-5 space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-bold text-white leading-snug">{project.title}</h3>
+            <ArrowRight
+              className="h-4 w-4 flex-shrink-0 mt-0.5 transition-transform group-hover:translate-x-1"
+              style={{ color: cfg.accent }}
+            />
+          </div>
+
+          <p className="text-white/50 text-xs leading-relaxed line-clamp-3">
+            {project.description}
+          </p>
+
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {project.tags.slice(0, 4).map((tag) => (
+              <span
+                key={tag}
+                className="px-2.5 py-0.5 text-[10px] font-semibold rounded-full"
+                style={{
+                  background: cfg.accentMuted,
+                  color: cfg.accent,
+                  border: `1px solid ${cfg.accentBorder}`,
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+// ─── Infinite Marquee ─────────────────────────────────────────────────────────
+function InfiniteMarquee({
+  projects,
+  onCardClick,
+}: {
+  projects: Project[];
+  onCardClick: (p: Project) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const posRef = useRef(0);
+  const rafRef = useRef<number>(0);
+  const pausedRef = useRef(false);
+
+  const totalW = projects.length * (CARD_WIDTH + CARD_GAP);
+
+  const animate = useCallback(() => {
+    if (!pausedRef.current && trackRef.current) {
+      posRef.current -= SPEED_PX_PER_SEC / 60;
+      if (posRef.current <= -totalW) posRef.current += totalW;
+      trackRef.current.style.transform = `translateX(${posRef.current}px)`;
+    }
+    rafRef.current = requestAnimationFrame(animate);
+  }, [totalW]);
+
+  useEffect(() => {
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [animate]);
+
+  // Duplicate cards to fill viewport seamlessly
+  const doubled = [...projects, ...projects, ...projects];
+
+  return (
+    <div
+      className="relative overflow-hidden"
+      onMouseEnter={() => { pausedRef.current = true; }}
+      onMouseLeave={() => { pausedRef.current = false; }}
+      onTouchStart={() => { pausedRef.current = true; }}
+      onTouchEnd={() => { pausedRef.current = false; }}
+    >
+      {/* Left / Right fade masks */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(90deg, var(--background) 0%, transparent 100%)" }} />
+      <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(270deg, var(--background) 0%, transparent 100%)" }} />
+
+      <div
+        ref={trackRef}
+        className="flex will-change-transform"
+        style={{ gap: CARD_GAP, paddingBottom: 8 }}
+      >
+        {doubled.map((project, idx) => (
+          <ProjectCard
+            key={`${project.id}-${idx}`}
+            project={project}
+            onClick={onCardClick}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Section ─────────────────────────────────────────────────────────────
 export default function ProjectsSection() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // States for budget modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSector, setSelectedSector] = useState<"varejo" | "saude" | null>(null);
-  const [selectedProjectName, setSelectedProjectName] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     fetch("/api/projects")
       .then((res) => res.json())
-      .then((data) => {
-        setProjects(data);
-        setLoading(false);
-      })
+      .then((data) => { setProjects(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
-  const handleProjectClick = (project: Project) => {
-    const isSaude = project.tags.some(
-      (t) =>
-        t.toLowerCase() === "saude" ||
-        t.toLowerCase() === "saúde" ||
-        t.toLowerCase() === "hospitalar" ||
-        t.toLowerCase() === "clínica" ||
-        t.toLowerCase() === "ans"
-    );
-    setSelectedSector(isSaude ? "saude" : "varejo");
-    setSelectedProjectName(project.title);
-    setIsModalOpen(true);
-  };
-
-  const handleCtaClick = () => {
-    setSelectedSector("varejo");
-    setSelectedProjectName(null);
-    setIsModalOpen(true);
-  };
-
-  // Build the items list for marquee (projects + 1 premium CTA card)
-  const baseItems: Project[] = [
-    ...projects,
-    {
-      id: "custom-cta-card",
-      title: "Quer algo assim na sua empresa?",
-      description: "Desenvolvo softwares de alta performance sob medida para o seu negócio comercial ou hospitalar.",
-      image: "",
-      tags: ["Sistemas", "Automação", "Vendas", "Fidelidade", "Customizado"],
-      color: "from-primary to-secondary",
-      isCta: true,
-    },
-  ];
-
-  // Double the list to make the infinite loop transition completely invisible
-  const doubledItems = [...baseItems, ...baseItems];
-
   return (
     <section id="projects" className="py-24 relative overflow-hidden">
-      {/* Background radial and linear gradients for premium ambient lighting */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(229,124,31,0.08)_0%,rgba(0,0,0,0)_60%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-primary/5/[0.02] to-background" />
-
-      {/* Embedded inline styles for smooth CSS GPU-accelerated marquee */}
-      <style>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .marquee-container {
-          display: flex;
-          gap: 1.5rem;
-          width: max-content;
-          animation: marquee 45s linear infinite;
-        }
-        .marquee-container:hover {
-          animation-play-state: paused;
-        }
-        /* Completely hide any native scrollbars */
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none !important;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none !important;
-          scrollbar-width: none !important;
-        }
-      `}</style>
-
-      <div className="relative z-10 container mx-auto px-4 space-y-16">
-        {/* Section Header */}
-        <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-            Projetos & Soluções
-          </h2>
-
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Alguns trabalhos e plataformas de alta fidelidade que posso desenvolver sob medida para a sua empresa.
-          </p>
-        </div>
-
-        {/* Infinite Marquee Wrapper with side fade-out gradients */}
-        <div className="relative w-full overflow-hidden py-4 hide-scrollbar">
-          {/* Side blur/fade-out shadows */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-r from-background to-transparent z-20 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-l from-background to-transparent z-20 pointer-events-none" />
-
-          {loading ? (
-            <div className="flex gap-6 justify-center py-16">
-              {[1, 2, 3].map((n) => (
-                <div
-                  key={n}
-                  className="w-[320px] md:w-[450px] h-[520px] rounded-2xl bg-card/40 border border-border/40 animate-pulse flex-shrink-0"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="marquee-container">
-              {doubledItems.map((project, index) => {
-                const uniqueKey = `${project.id}-${index}`;
-
-                // CTA Card rendering
-                if (project.isCta) {
-                  return (
-                    <div
-                      key={uniqueKey}
-                      onClick={handleCtaClick}
-                      className="flex-shrink-0 w-[290px] sm:w-[350px] md:w-[420px] h-[520px] rounded-2xl border border-dashed border-primary/30 hover:border-primary/60 transition-all duration-300 flex items-center bg-card/10 p-6 md:p-8 cursor-pointer group hover:bg-card/25"
-                    >
-                      <div className="flex flex-col gap-6 text-left h-full justify-between py-6">
-                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors border border-primary/20">
-                          <Plus className="h-7 w-7 text-primary group-hover:rotate-90 transition-transform duration-300" />
-                        </div>
-
-                        <div className="space-y-3">
-                          <h3 className="text-2xl font-bold text-foreground">
-                            {project.title}
-                          </h3>
-                          <p className="text-muted-foreground text-sm leading-relaxed">
-                            {project.description}
-                          </p>
-                        </div>
-
-                        <Button className="w-full bg-gradient-to-r from-primary to-secondary text-foreground font-semibold h-11 rounded-xl">
-                          Fazer Orçamento Sob Medida
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Regular Project Card rendering
-                return (
-                  <div
-                    key={uniqueKey}
-                    onClick={() => handleProjectClick(project)}
-                    className="flex-shrink-0 w-[290px] sm:w-[350px] md:w-[420px] h-[520px] rounded-2xl bg-card border border-border/50 overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col justify-between"
-                  >
-                    {/* Project Cover Image */}
-                    <div className="relative h-56 overflow-hidden flex-shrink-0">
-                      {/* Gradient overlay */}
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br opacity-15 ${project.color}`}
-                      />
-
-                      <img
-                        src={
-                          project.image && project.image.trim() !== ""
-                            ? project.image
-                            : "/placeholder.svg"
-                        }
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-
-                    {/* Card Content */}
-                    <div className="p-6 flex flex-col justify-between flex-grow gap-4">
-                      <div className="space-y-2">
-                        <h3 className="text-xl md:text-2xl font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                          {project.title}
-                        </h3>
-
-                        <p className="text-muted-foreground leading-relaxed text-xs md:text-sm line-clamp-3">
-                          {project.description}
-                        </p>
-                      </div>
-
-                      <div className="space-y-4">
-                        {/* Tags / Stack */}
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.tags?.slice(0, 4).map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2.5 py-0.5 text-[10px] md:text-xs font-semibold rounded-full bg-primary/5 text-primary border border-primary/10"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                          {project.tags?.length > 4 && (
-                            <span className="px-2.5 py-0.5 text-[10px] md:text-xs font-semibold rounded-full bg-muted text-muted-foreground border border-border">
-                              +{project.tags.length - 4}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Order CTA Button */}
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleProjectClick(project);
-                          }}
-                          className="w-full group/btn bg-gradient-to-r from-primary to-secondary hover:opacity-95 text-foreground font-semibold h-10 rounded-xl"
-                        >
-                          Orçamento sob Medida
-                          <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/4 w-96 h-96 -translate-y-1/2 rounded-full opacity-10 blur-3xl"
+          style={{ background: "radial-gradient(circle, #E57C1F, transparent 70%)" }} />
+        <div className="absolute top-1/2 right-1/4 w-72 h-72 -translate-y-1/2 rounded-full opacity-8 blur-3xl"
+          style={{ background: "radial-gradient(circle, #0F6B75, transparent 70%)" }} />
       </div>
 
-      {/* Budget Modal Integration */}
-      <BudgetModal
-        isOpen={isModalOpen}
-        sector={selectedSector}
-        projectName={selectedProjectName}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <div className="relative z-10 container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center space-y-3 mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-2"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Projetos que posso construir para você
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="text-4xl md:text-5xl font-bold text-foreground"
+          >
+            Produtos Digitais
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.14 }}
+            className="text-lg text-muted-foreground max-w-xl mx-auto"
+          >
+            Clique em qualquer projeto para solicitar um orçamento sob medida.
+          </motion.p>
+        </div>
+
+        {/* Carousel */}
+        {loading ? (
+          <div className="flex gap-6 overflow-hidden py-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 rounded-2xl bg-white/5 animate-pulse"
+                style={{ width: CARD_WIDTH, height: 340 }}
+              />
+            ))}
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <InfiniteMarquee projects={projects} onCardClick={setSelectedProject} />
+          </motion.div>
+        )}
+
+        {/* Hint */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="text-center text-xs text-white/25 mt-8 flex items-center justify-center gap-1.5"
+        >
+          <span className="inline-block w-4 h-px bg-white/20" />
+          Passe o mouse para pausar · Clique para orçar
+          <span className="inline-block w-4 h-px bg-white/20" />
+        </motion.p>
+      </div>
+
+      {/* Quote Modal */}
+      <QuoteModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </section>
   );
 }

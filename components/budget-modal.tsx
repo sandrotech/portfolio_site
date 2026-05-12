@@ -10,7 +10,6 @@ interface BudgetModalProps {
   isOpen: boolean;
   sector: Sector | null;
   onClose: () => void;
-  projectName?: string | null;
 }
 
 const sectorConfig = {
@@ -36,7 +35,7 @@ const sectorConfig = {
 
 const WHATSAPP_NUMBER = "5585988102690";
 
-export function BudgetModal({ isOpen, sector, onClose, projectName }: BudgetModalProps) {
+export function BudgetModal({ isOpen, sector, onClose }: BudgetModalProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
@@ -44,17 +43,6 @@ export function BudgetModal({ isOpen, sector, onClose, projectName }: BudgetModa
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
-  // Initialize description if a project name is passed
-  useEffect(() => {
-    if (isOpen) {
-      if (projectName) {
-        setDescription(`Olá! Tenho interesse em desenvolver um sistema sob medida inspirado no projeto "${projectName}". Seguem alguns detalhes da minha ideia:\n\n`);
-      } else {
-        setDescription("");
-      }
-    }
-  }, [isOpen, projectName]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
