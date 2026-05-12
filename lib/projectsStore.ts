@@ -36,6 +36,33 @@ let staticProjects: Project[] = [
         tags: ["Python", "Machine Learning", "Next.js", "AI", "Varejo", "Estoque"],
         color: "from-orange-600 to-red-500",
         url: "https://github.com/sandrotech"
+    },
+    {
+        id: "portal-fornecedores",
+        title: "Portal de Fornecedores & Pedidos",
+        description: "Plataforma integrada de compras e gestão de pedidos de reabastecimento para supermercados. Automação completa do envio de ordens de compra, rastreio de entrega por fornecedores e controle de recebimento de notas fiscais.",
+        image: "/portal_fornecedores.png",
+        tags: ["Next.js", "Node.js", "PostgreSQL", "ERPs", "Notas Fiscais", "Logística"],
+        color: "from-amber-500 to-orange-600",
+        url: "https://github.com/sandrotech"
+    },
+    {
+        id: "automacao-checkout",
+        title: "Checkout Real-Time & Analytics",
+        description: "Sistema de faturamento e telemetria de frente de caixa para supermercados. Captura dados de PDVs em tempo real, gerando dashboards analíticos de velocidade de checkout, ticket médio por operador e alertas de ociosidade.",
+        image: "/checkout_analytics.png",
+        tags: ["React", "WebSockets", "Go", "Redis", "Grafana", "Dashboards"],
+        color: "from-orange-500 to-rose-600",
+        url: "https://github.com/sandrotech"
+    },
+    {
+        id: "crm-fidelidade",
+        title: "CRM Varejo - Gestão de Fidelidade",
+        description: "Plataforma de fidelidade e automação de campanhas de marketing para supermercados. Segmentação inteligente de clientes com base no comportamento de compras, envio de ofertas personalizadas via WhatsApp e painel de retorno sobre investimento (ROI).",
+        image: "/crm_fidelidade.png",
+        tags: ["Next.js", "Python", "AI", "WhatsApp API", "Campaigns", "Analytics"],
+        color: "from-yellow-500 to-amber-600",
+        url: "https://github.com/sandrotech"
     }
 ];
 
