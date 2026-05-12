@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ExternalLink, Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
+import { BudgetModal } from "@/components/budget-modal";
 
 type Project = {
   id: string;
@@ -11,12 +12,18 @@ type Project = {
   image: string;
   tags: string[];
   color: string;
-  url?: string;
+  url?: string | null;
+  isCta?: boolean;
 };
 
 export default function ProjectsSection() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // States for budget modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSector, setSelectedSector] = useState<"varejo" | "saude" | null>(null);
+  const [selectedProjectName, setSelectedProjectName] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -28,168 +35,224 @@ export default function ProjectsSection() {
       .catch(() => setLoading(false));
   }, []);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    const amount = 400;
-    el.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
+  const handleProjectClick = (project: Project) => {
+    const isSaude = project.tags.some(
+      (t) =>
+        t.toLowerCase() === "saude" ||
+        t.toLowerCase() === "saúde" ||
+        t.toLowerCase() === "hospitalar" ||
+        t.toLowerCase() === "clínica" ||
+        t.toLowerCase() === "ans"
+    );
+    setSelectedSector(isSaude ? "saude" : "varejo");
+    setSelectedProjectName(project.title);
+    setIsModalOpen(true);
   };
+
+  const handleCtaClick = () => {
+    setSelectedSector("varejo");
+    setSelectedProjectName(null);
+    setIsModalOpen(true);
+  };
+
+  // Build the items list for marquee (projects + 1 premium CTA card)
+  const baseItems: Project[] = [
+    ...projects,
+    {
+      id: "custom-cta-card",
+      title: "Quer algo assim na sua empresa?",
+      description: "Desenvolvo softwares de alta performance sob medida para o seu negócio comercial ou hospitalar.",
+      image: "",
+      tags: ["Sistemas", "Automação", "Vendas", "Fidelidade", "Customizado"],
+      color: "from-primary to-secondary",
+      isCta: true,
+    },
+  ];
+
+  // Double the list to make the infinite loop transition completely invisible
+  const doubledItems = [...baseItems, ...baseItems];
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden">
-      {/* fundo leve em degradê pra separar a seção do resto */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(24,36,96,.35)_0%,rgba(0,0,0,0)_70%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-primary/5/[0.03] to-background" />
+      {/* Background radial and linear gradients for premium ambient lighting */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(229,124,31,0.08)_0%,rgba(0,0,0,0)_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-primary/5/[0.02] to-background" />
 
-      <div className="relative z-10 container mx-auto px-4 space-y-12">
-        {/* Cabeçalho da seção */}
+      {/* Embedded inline styles for smooth CSS GPU-accelerated marquee */}
+      <style>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .marquee-container {
+          display: flex;
+          gap: 1.5rem;
+          width: max-content;
+          animation: marquee 45s linear infinite;
+        }
+        .marquee-container:hover {
+          animation-play-state: paused;
+        }
+        /* Completely hide any native scrollbars */
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none !important;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      `}</style>
+
+      <div className="relative z-10 container mx-auto px-4 space-y-16">
+        {/* Section Header */}
         <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-            Projetos
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+            Projetos & Soluções
           </h2>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Alguns trabalhos e plataformas que desenvolvo com foco em produto
-            digital real
+            Alguns trabalhos e plataformas de alta fidelidade que posso desenvolver sob medida para a sua empresa.
           </p>
         </div>
 
-        <div className="relative">
-          {/* Botões laterais de scroll (desktop) */}
-          <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 justify-between pointer-events-none z-10 px-4">
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => scroll("left")}
-              className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50 text-foreground"
-            >
-              <ArrowRight className="h-4 w-4 rotate-180" />
-            </Button>
+        {/* Infinite Marquee Wrapper with side fade-out gradients */}
+        <div className="relative w-full overflow-hidden py-4 hide-scrollbar">
+          {/* Side blur/fade-out shadows */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-r from-background to-transparent z-20 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-l from-background to-transparent z-20 pointer-events-none" />
 
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => scroll("right")}
-              className="pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-primary/20 border-primary/50 text-foreground"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
+          {loading ? (
+            <div className="flex gap-6 justify-center py-16">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="w-[320px] md:w-[450px] h-[520px] rounded-2xl bg-card/40 border border-border/40 animate-pulse flex-shrink-0"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="marquee-container">
+              {doubledItems.map((project, index) => {
+                const uniqueKey = `${project.id}-${index}`;
 
-          {/* Lista horizontal com os cards de projeto */}
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            }}
-          >
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center group"
-              >
-                <div className="relative h-full rounded-2xl bg-card border border-border/60 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20">
-                  {/* Imagem de capa do projeto */}
-                  <div className="relative h-64 overflow-hidden">
-                    {/* overlay gradiente custom de cada projeto */}
+                // CTA Card rendering
+                if (project.isCta) {
+                  return (
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br opacity-20 ${project.color}`}
-                    />
+                      key={uniqueKey}
+                      onClick={handleCtaClick}
+                      className="flex-shrink-0 w-[290px] sm:w-[350px] md:w-[420px] h-[520px] rounded-2xl border border-dashed border-primary/30 hover:border-primary/60 transition-all duration-300 flex items-center bg-card/10 p-6 md:p-8 cursor-pointer group hover:bg-card/25"
+                    >
+                      <div className="flex flex-col gap-6 text-left h-full justify-between py-6">
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors border border-primary/20">
+                          <Plus className="h-7 w-7 text-primary group-hover:rotate-90 transition-transform duration-300" />
+                        </div>
 
-                    <img
-                      src={
-                        project.image && project.image.trim() !== ""
-                          ? project.image
-                          : "/placeholder.svg"
-                      }
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
+                        <div className="space-y-3">
+                          <h3 className="text-2xl font-bold text-foreground">
+                            {project.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed">
+                            {project.description}
+                          </p>
+                        </div>
 
-                  {/* Conteúdo do card */}
-                  <div className="p-6 space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      {project.title}
-                    </h3>
-
-                    <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
-                      {project.description}
-                    </p>
-
-                    {/* Tags / stack */}
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags?.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Botão de ação (link do projeto se tiver url) */}
-                    {project.url && project.url.trim() !== "" ? (
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button className="w-full group/btn bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-foreground">
-                          Ver Detalhes
-                          <ExternalLink className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                        <Button className="w-full bg-gradient-to-r from-primary to-secondary text-foreground font-semibold h-11 rounded-xl">
+                          Fazer Orçamento Sob Medida
                         </Button>
-                      </a>
-                    ) : (
-                      <Button
-                        className="w-full group/btn bg-gradient-to-r from-primary to-secondary opacity-60 cursor-default"
-                        disabled
-                      >
-                        Ver Detalhes
-                        <ExternalLink className="ml-2 h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                      </div>
+                    </div>
+                  );
+                }
 
-            {/* Card final chamando contato / orçamento */}
-            <a
-              href="#contact"
-              className="flex-shrink-0 w-[90vw] md:w-[500px] snap-center"
-            >
-              <div className="h-full rounded-2xl border border-dashed border-primary/40 hover:border-primary/70 transition-colors flex items-center bg-card/20 p-6 md:p-8 cursor-pointer group">
-                <div className="flex flex-col md:flex-row md:items-start gap-6 text-left">
-                  {/* bolinha com + */}
-                  <div className="flex-shrink-0">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors border border-primary/40">
-                      <Plus className="h-8 w-8 text-primary" />
+                // Regular Project Card rendering
+                return (
+                  <div
+                    key={uniqueKey}
+                    onClick={() => handleProjectClick(project)}
+                    className="flex-shrink-0 w-[290px] sm:w-[350px] md:w-[420px] h-[520px] rounded-2xl bg-card border border-border/50 overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col justify-between"
+                  >
+                    {/* Project Cover Image */}
+                    <div className="relative h-56 overflow-hidden flex-shrink-0">
+                      {/* Gradient overlay */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br opacity-15 ${project.color}`}
+                      />
+
+                      <img
+                        src={
+                          project.image && project.image.trim() !== ""
+                            ? project.image
+                            : "/placeholder.svg"
+                        }
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="p-6 flex flex-col justify-between flex-grow gap-4">
+                      <div className="space-y-2">
+                        <h3 className="text-xl md:text-2xl font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                          {project.title}
+                        </h3>
+
+                        <p className="text-muted-foreground leading-relaxed text-xs md:text-sm line-clamp-3">
+                          {project.description}
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* Tags / Stack */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {project.tags?.slice(0, 4).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-0.5 text-[10px] md:text-xs font-semibold rounded-full bg-primary/5 text-primary border border-primary/10"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {project.tags?.length > 4 && (
+                            <span className="px-2.5 py-0.5 text-[10px] md:text-xs font-semibold rounded-full bg-muted text-muted-foreground border border-border">
+                              +{project.tags.length - 4}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Order CTA Button */}
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProjectClick(project);
+                          }}
+                          className="w-full group/btn bg-gradient-to-r from-primary to-secondary hover:opacity-95 text-foreground font-semibold h-10 rounded-xl"
+                        >
+                          Orçamento sob Medida
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-bold text-foreground">
-                      Quer algo assim na sua empresa?
-                    </h3>
-                    <p className="text-muted-foreground text-sm md:text-base">
-                      Fala comigo pra criar ou evoluir seu produto.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Budget Modal Integration */}
+      <BudgetModal
+        isOpen={isModalOpen}
+        sector={selectedSector}
+        projectName={selectedProjectName}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 }
