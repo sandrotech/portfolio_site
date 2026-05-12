@@ -50,14 +50,7 @@ export function Navigation() {
       )}
     >
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => scrollToSection("hero")}
-            className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-          >
-            AB
-          </button>
-
+        <div className="flex items-center justify-end">
           <ul className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <li key={item.id}>

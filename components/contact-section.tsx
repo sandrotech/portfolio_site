@@ -8,16 +8,35 @@ import {
   Github,
   Linkedin,
   Mail,
-  Instagram,
   Send,
   CheckCircle2,
+  LucideProps,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const WhatsappIcon = (props: LucideProps) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    <path
+      transform="translate(6.5, 6.2) scale(0.45)"
+      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+    />
+  </svg>
+);
 
 const socialLinks = [
-  { icon: Github, href: "https://github.com", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: Mail, href: "mailto:alessandro@example.com", label: "Email" },
+  { icon: Github, href: "https://github.com/sandrotech", label: "GitHub" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/alessandro-barbosa/?locale=pt", label: "LinkedIn" },
+  { icon: Mail, href: "mailto:sandro.santostech@gmail.com", label: "Email" },
+  { icon: WhatsappIcon, href: "https://wa.me/5585988102690", label: "WhatsApp" },
 ];
 
 export function ContactSection() {
@@ -82,8 +101,7 @@ export function ContactSection() {
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold">Vamos Conectar?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Adoro trocar ideias, construir parcerias e criar projetos
-              colaborativos. Entre em contato!
+              Sempre aberto a novas ideias, colaborações estratégicas e desenvolvimento de projetos inovadores. Vamos conversar?
             </p>
           </div>
 
@@ -144,25 +162,58 @@ export function ContactSection() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity group"
+                  className={`w-full bg-gradient-to-r transition-all duration-500 group overflow-hidden relative h-11 ${
+                    isSubmitted
+                      ? "from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25"
+                      : "from-primary to-secondary hover:opacity-90"
+                  }`}
                   disabled={isSubmitting || isSubmitted}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Enviando...
-                    </>
-                  ) : isSubmitted ? (
-                    <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Enviado!
-                    </>
-                  ) : (
-                    <>
-                      Enviar Mensagem
-                      <Send className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {isSubmitting ? (
+                      <motion.div
+                        key="submitting"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center justify-center absolute inset-0"
+                      >
+                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                        <span>Enviando...</span>
+                      </motion.div>
+                    ) : isSubmitted ? (
+                      <motion.div
+                        key="submitted"
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="flex items-center justify-center absolute inset-0"
+                      >
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: [0, 1.2, 1] }}
+                          transition={{ delay: 0.1, duration: 0.3 }}
+                        >
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-white" />
+                        </motion.div>
+                        <span className="font-semibold text-white">Enviado com Sucesso!</span>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="idle"
+                        initial={{ opacity: 0, y: -15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 15 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center justify-center absolute inset-0"
+                      >
+                        <span>Enviar Mensagem</span>
+                        <Send className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </Button>
               </form>
             </div>
@@ -180,17 +231,32 @@ export function ContactSection() {
               <div className="grid grid-cols-2 gap-4">
                 {socialLinks.map((social, index) => {
                   const Icon = social.icon;
+                  const isWhatsapp = social.label === "WhatsApp";
                   return (
                     <a
                       key={index}
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group p-6 rounded-xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                      className={`group p-6 rounded-xl bg-card border border-border transition-all duration-300 hover:shadow-lg ${
+                        isWhatsapp
+                          ? "hover:border-[#25D366]/50 hover:shadow-[#25D366]/20"
+                          : "hover:border-primary/50 hover:shadow-primary/20"
+                      }`}
                     >
                       <div className="flex flex-col items-center gap-3">
-                        <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                          <Icon className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+                        <div
+                          className={`p-3 rounded-lg transition-colors ${
+                            isWhatsapp
+                              ? "bg-[#25D366]/10 group-hover:bg-[#25D366]/20"
+                              : "bg-primary/10 group-hover:bg-primary/20"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-6 w-6 transition-transform group-hover:scale-110 ${
+                              isWhatsapp ? "text-[#25D366]" : "text-primary"
+                            }`}
+                          />
                         </div>
                         <span className="font-medium">{social.label}</span>
                       </div>

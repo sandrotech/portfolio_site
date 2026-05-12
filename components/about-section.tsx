@@ -17,12 +17,12 @@ const highlights = [
   {
     icon: Briefcase,
     title: "Technical Advisor II",
-    description: "Experiência em consultoria técnica e arquitetura de soluções",
+    description: "Consultoria técnica e arquitetura de soluções para Varejo e Saúde",
   },
   {
     icon: Heart,
-    title: "Entusiasta Tech",
-    description: "Apaixonado por Python, JavaScript, Next.js, Django e DevOps",
+    title: "Especialista Setorial",
+    description: "Anos desenvolvendo para supermercados, clínicas e hospitais — entendo o negócio, não só o código",
   },
 ]
 
@@ -88,7 +88,7 @@ export function AboutSection() {
 
           <div className="text-center">
             <blockquote className="text-2xl md:text-3xl font-medium italic text-balance">
-              "Transformando complexidade em simplicidade, código em experiências."
+              “Conhecer o setor é tão importante quanto dominar o código. Por isso construo soluções que funcionam no mundo real.”
             </blockquote>
           </div>
         </div>

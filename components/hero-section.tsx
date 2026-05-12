@@ -1,11 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowDown, Github, Linkedin, Mail, Download } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 import Image from "next/image"
 
-const roles = ["Full Stack Developer", "Tech Innovator", "Network Builder", "Problem Solver"]
+const roles = [
+  "Full Stack Developer",
+  "Especialista em Varejo & Saúde",
+  "Arquiteto de Soluções Digitais",
+  "Tech Advisor — do código ao negócio",
+]
 
 export function HeroSection() {
   const [currentRole, setCurrentRole] = useState(0)
@@ -23,16 +27,12 @@ export function HeroSection() {
     return () => clearInterval(interval)
   }, [])
 
-  const scrollToProjects = () => {
-    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
-  }
-
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+  const scrollToAbout = () => {
+    document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })
   }
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 animate-gradient" />
 
@@ -40,7 +40,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
           {/* Left side - Profile Image */}
           <div className="flex justify-center lg:justify-end order-2 lg:order-1">
             <div className="relative group">
@@ -78,66 +78,25 @@ export function HeroSection() {
             </div>
 
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-              Transformo ideias em sistemas reais, unindo desenvolvimento, design e estratégia. Crio soluções completas
-              e adoro construir conexões que geram impacto.
+              Construo sistemas completos para{" "}
+              <span className="font-semibold" style={{ color: "#E57C1F" }}>Varejo &amp; Supermercados</span>{" "}
+              e{" "}
+              <span className="font-semibold" style={{ color: "#0F9AA8" }}>Saúde &amp; Hospitalar</span>{" "}—
+              do back-end ao painel, com foco em negócio real.
             </p>
 
-            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                onClick={scrollToProjects}
-                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity group"
-              >
-                Ver Projetos
-                <ArrowDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={scrollToContact}
-                className="border-primary/50 hover:bg-primary/10 bg-transparent"
-              >
-                <Linkedin className="mr-2 h-4 w-4" />
-                Conectar
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary/50 hover:bg-primary/10 bg-transparent">
-                <Download className="mr-2 h-4 w-4" />
-                Currículo
-              </Button>
-            </div>
-
-            <div className="flex gap-4 justify-center lg:justify-start pt-4">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-full bg-card hover:bg-primary/20 transition-colors group"
-              >
-                <Github className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-full bg-card hover:bg-primary/20 transition-colors group"
-              >
-                <Linkedin className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              </a>
-              <a
-                href="mailto:alessandro@example.com"
-                className="p-3 rounded-full bg-card hover:bg-primary/20 transition-colors group"
-              >
-                <Mail className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              </a>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <ArrowDown className="h-6 w-6 text-muted-foreground" />
-      </div>
+      <button
+        onClick={scrollToAbout}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer p-2 hover:text-primary transition-colors z-20 group"
+        aria-label="Rolar para Sobre Mim"
+      >
+        <ArrowDown className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+      </button>
     </section>
   )
 }

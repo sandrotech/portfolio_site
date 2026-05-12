@@ -1,11 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink, Plus } from "lucide-react";
-
-// importa o JSON estático
-import projectsData from "@/data/projects.json";
 
 type Project = {
   id: string;
@@ -13,13 +10,23 @@ type Project = {
   description: string;
   image: string;
   tags: string[];
-  color: string; // ex: "from-blue-500 to-cyan-500"
+  color: string;
   url?: string;
 };
 
 export default function ProjectsSection() {
-  // agora usamos direto o json, sem filtro de `active`
-  const projects = projectsData as Project[];
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        setProjects(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
