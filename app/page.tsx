@@ -3,6 +3,7 @@ import { AboutSection } from "@/components/about-section"
 import { StackSection } from "@/components/stack-section"
 import ProjectsSection from "@/components/projects-section"
 import { SectorCardsSection } from "@/components/sector-cards-section"
+import { ClientsSection } from "@/components/clients-section"
 import { ContactSection } from "@/components/contact-section"
 import { Footer } from "@/components/footer"
 import { Navigation } from "@/components/navigation"
@@ -16,6 +17,7 @@ export default function Home() {
       <StackSection />
       <ProjectsSection />
       <SectorCardsSection />
+      <ClientsSection />
       <ContactSection />
       <Footer />
     </main>
