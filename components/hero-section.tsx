@@ -1,106 +1,26 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { ArrowDown } from "lucide-react"
 import Image from "next/image"
+import { CheckCircle2 } from "lucide-react"
+import { brandConfig } from "@/config/brand"
+import { LeadCta } from "@/components/lead-cta"
+import { TrackedLink } from "@/components/tracked-link"
 
-const roles = [
-  "Full Stack Developer",
-  "Especialista em Varejo & Saúde",
-  "Arquiteto de Soluções Digitais",
-  "Tech Advisor — do código ao negócio",
-]
+const trust = ["Projetos liderados por Alessandro Barbosa", "Atendimento direto", "Desenvolvimento e implantação"]
 
 export function HeroSection() {
-  const [currentRole, setCurrentRole] = useState(0)
-  const [isTyping, setIsTyping] = useState(true)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTyping(false)
-      setTimeout(() => {
-        setCurrentRole((prev) => (prev + 1) % roles.length)
-        setIsTyping(true)
-      }, 500)
-    }, 3000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const scrollToAbout = () => {
-    document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })
-  }
-
-  return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 animate-gradient" />
-
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
-          {/* Left side - Profile Image */}
-          <div className="flex justify-center lg:justify-end order-2 lg:order-1">
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary to-secondary rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-
-              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/50 shadow-2xl animate-float">
-                <Image
-                  src="/images/alessandro-profile.png"
-                  alt="Alessandro Barbosa"
-                  fill
-                  className="object-cover object-top"
-                  priority
-                />
-              </div>
-            </div>
-          </div>
-
-
-          {/* Right side - Content */}
-          <div className="space-y-6 order-1 lg:order-2 text-center lg:text-left">
-            <div className="space-y-2">
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient">
-                Alessandro Barbosa
-              </h1>
-              <div className="h-12 flex items-center justify-center lg:justify-start">
-                <p
-                  className={cn(
-                    "text-xl md:text-2xl text-muted-foreground transition-opacity duration-500",
-                    isTyping ? "opacity-100" : "opacity-0",
-                  )}
-                >
-                  {roles[currentRole]}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-              Construo sistemas completos para{" "}
-              <span className="font-semibold" style={{ color: "#E57C1F" }}>Varejo &amp; Supermercados</span>{" "}
-              e{" "}
-              <span className="font-semibold" style={{ color: "#0F9AA8" }}>Saúde &amp; Hospitalar</span>{" "}—
-              do back-end ao painel, com foco em negócio real.
-            </p>
-
-          </div>
-        </div>
+  return <section id="hero" className="relative flex min-h-[100svh] items-center overflow-hidden pt-24">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(21,94,239,0.13),transparent_34%),radial-gradient(circle_at_84%_34%,rgba(14,175,164,0.12),transparent_31%),linear-gradient(145deg,#F3F7FC_0%,#FBFDFF_48%,#E8F0F9_100%)]" />
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(16,42,76,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(16,42,76,0.055)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" />
+    <div className="container relative z-10 mx-auto grid items-center gap-10 px-4 py-12 lg:grid-cols-[1.35fr_.65fr] lg:py-16">
+      <div className="max-w-4xl">
+        <div className="mb-6 hidden w-fit max-w-[480px] sm:block"><Image src={brandConfig.logoHorizontal} alt="STech Sistemas" width={brandConfig.logoWidth} height={brandConfig.logoHeight} priority className="h-auto w-full" /></div>
+        <div className="mb-6 flex items-center gap-3 sm:hidden"><Image src={brandConfig.logoCompact} alt="" width={brandConfig.symbolWidth} height={brandConfig.symbolHeight} priority className="h-14 w-14 shrink-0 object-contain" /><span><span className="block text-2xl font-bold leading-tight text-primary">STech Sistemas</span><span className="block text-xs text-muted-foreground">Sistemas, Integrações e Automações</span></span></div>
+        <p className="section-eyebrow">Sistemas • Integrações • Automações</p>
+        <h1 className="mt-4 text-balance text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">Sistemas, sites e automações sob medida para empresas.</h1>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">A STech desenvolve sistemas web, sites profissionais, landing pages e integrações com WhatsApp, Telegram, e-mail, APIs e sistemas internos — do diagnóstico à implantação.</p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row"><LeadCta source="hero" event="hero_primary_cta_click" label="Falar sobre meu projeto" /><TrackedLink event="hero_secondary_cta_click" properties={{ source: "hero" }} href="#solutions" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-card px-5 py-3 font-semibold shadow-sm transition-colors duration-200 hover:border-primary/50 hover:bg-card-highlight">Conhecer as soluções</TrackedLink></div>
+        <ul className="mt-7 grid gap-3 text-sm sm:grid-cols-3">{trust.map((item) => <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />{item}</li>)}</ul>
       </div>
-
-      {/* Scroll indicator */}
-      <button
-        onClick={scrollToAbout}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer p-2 hover:text-primary transition-colors z-20 group"
-        aria-label="Rolar para Sobre Mim"
-      >
-        <ArrowDown className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-      </button>
-    </section>
-  )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
+      <div className="mx-auto max-w-sm text-center"><div className="relative mx-auto aspect-square w-56 overflow-hidden rounded-full border-4 border-card shadow-[0_24px_60px_rgba(16,42,76,0.18)] ring-2 ring-accent/35 sm:w-72"><Image src="/images/alessandro-profile.png" alt="Alessandro Barbosa, fundador e responsável técnico da STech Sistemas" fill priority sizes="(max-width: 640px) 224px, 288px" className="object-cover object-top" /></div><p className="mt-5 font-semibold">Alessandro Barbosa</p><p className="text-sm text-muted-foreground">Fundador e responsável técnico da STech Sistemas</p></div>
+    </div>
+  </section>
 }

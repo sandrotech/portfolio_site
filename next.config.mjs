@@ -2,11 +2,8 @@
 const nextConfig = {
   poweredByHeader: false,
   generateEtags: false, // Prevent inode leaking via ETags
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
-    unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
   },
   devIndicators: {
     appIsrStatus: false,
@@ -34,7 +31,7 @@ const nextConfig = {
           // Force HTTPS (2 years)
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
+            value: 'max-age=31536000',
           },
           // Referrer Policy
           {

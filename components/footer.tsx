@@ -1,60 +1,7 @@
-"use client"
+import Image from "next/image"
+import { brandConfig } from "@/config/brand"
+import { contactConfig } from "@/config/contact"
 
-import { useEffect, useState } from "react"
-import { ArrowUp, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
+const links = [["Soluções","#solutions"],["Automações","#automations"],["Projetos","#cases"],["Sobre","#about"],["Contato","#contact"],["Política de Privacidade","/politica-de-privacidade"]]
 
-export function Footer() {
-  const [showBackToTop, setShowBackToTop] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500)
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
-  return (
-    <footer className="relative py-12 border-t border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-6">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-            <p className="text-sm">
-              Criado com paixão por{" "}
-              <span className="font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Alessandro Barbosa
-              </span>{" "}
-              © 2025
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>Full Stack Developer</span>
-            <span>•</span>
-            <span>Tech Innovator</span>
-            <span>•</span>
-            <span>Network Builder</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Back to top button */}
-      {showBackToTop && (
-        <Button
-          size="icon"
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 rounded-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-lg shadow-primary/50 animate-float z-50"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </Button>
-      )}
-    </footer>
-  )
-}
+export function Footer() { return <footer className="border-t border-white/10 bg-[var(--deep-navy)] py-10 text-white"><div className="container mx-auto grid gap-8 px-4 md:grid-cols-[1fr_auto]"><div><div className="w-fit max-w-xs"><Image src={brandConfig.logoHorizontal} alt="Logo oficial da STech Sistemas" width={brandConfig.logoWidth} height={brandConfig.logoHeight} className="h-auto w-full" /></div><p className="mt-4 font-semibold text-white">STech Sistemas</p><p className="text-sm text-slate-300">Sistemas, Integrações e Automações</p><p className="mt-1 text-sm text-slate-300">Projetos liderados por Alessandro Barbosa</p><p className="mt-4 text-xs text-slate-400">© {new Date().getFullYear()} STech Sistemas.</p></div><div className="space-y-5"><nav aria-label="Links do rodapé" className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-slate-300">{links.map(([label,href]) => <a key={href} href={href} className="transition-colors hover:text-white">{label}</a>)}</nav><div className="flex gap-5 text-sm text-slate-300"><a href={contactConfig.linkedin} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">LinkedIn</a><a href={contactConfig.github} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">GitHub</a>{/* TODO: confirmar com Alessandro o perfil oficial do Instagram da STech Sistemas. */}</div></div></div></footer> }
