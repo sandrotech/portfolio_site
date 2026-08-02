@@ -12,8 +12,6 @@ const ipAttempts = new Map<string, Attempt>()
 const contactAttempts = new Map<string, Attempt>()
 const MAX_BODY_BYTES = 20_000
 const MIN_SUBMIT_TIME_MS = 1_500
-const mailConfig = getMailConfig()
-const mailTransporter = getMailTransporter()
 
 function limited(store: Map<string, Attempt>, key: string, maximum: number, windowMs: number) {
   const now = Date.now()
@@ -84,6 +82,10 @@ export async function POST(request: Request) {
       pathname: escapeHtml(lead.pathname ?? "/"),
     }
 
+    // Credenciais SMTP pertencem ao runtime e não devem ser exigidas ou
+    // incorporadas durante o build da imagem Docker.
+    const mailConfig = getMailConfig()
+    const mailTransporter = getMailTransporter()
     await mailTransporter.sendMail({
       from: `"STech Sistemas — contato pelo site" <${mailConfig.SMTP_USER}>`,
       to: mailConfig.CONTACT_EMAIL,
