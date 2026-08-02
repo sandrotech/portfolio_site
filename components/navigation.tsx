@@ -20,7 +20,7 @@ export function Navigation() {
     return () => { window.removeEventListener("scroll", onScroll); observer.disconnect() }
   }, [])
   function goTo(id: string) { setOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }) }
-  return <header className={cn("fixed inset-x-0 top-0 z-40 border-b border-transparent transition-all duration-200", scrolled ? "border-border bg-card/90 shadow-[0_8px_24px_rgba(49,91,138,0.08)] backdrop-blur-xl" : "bg-background/75 backdrop-blur-md")}>
+  return <header className={cn("fixed inset-x-0 top-0 z-40 border-b border-border/80 bg-card/95 backdrop-blur-xl transition-shadow duration-200", scrolled ? "shadow-[0_8px_24px_rgba(49,91,138,0.08)]" : "shadow-sm")}>
     <a href="#content" className="sr-only z-[60] rounded bg-card p-3 focus:not-sr-only focus:absolute focus:left-3 focus:top-3">Ir para o conteúdo</a>
     <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 lg:h-20">
       <button onClick={() => goTo("hero")} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" aria-label="STech Sistemas — ir ao início">
